@@ -14,11 +14,12 @@ class BCICompetition4Set2A:
     def load(self):
         cnt = self.extract_data()
         events, artifact_trial_mask = self.extract_events(cnt)
-        cnt.info["events"] = events
-        cnt.info["artifact_trial_mask"] = artifact_trial_mask
+        cnt.info["temp"]["events"] = events
+        cnt.info["temp"]["artifact_trial_mask"] = artifact_trial_mask
         return cnt
 
     def extract_data(self):
+        print(self.filename)
         raw_gdf = mne.io.read_raw_gdf(self.filename, stim_channel="auto", verbose='ERROR',
                                       exclude=(["EOG-left", "EOG-central", "EOG-right"]))
         raw_gdf.rename_channels(
@@ -43,12 +44,14 @@ class BCICompetition4Set2A:
         gdf_events = mne.events_from_annotations(raw_gdf)
         raw_gdf = mne.io.RawArray(data, raw_gdf.info, verbose="ERROR")
         # remember gdf events
-        raw_gdf.info["gdf_events"] = gdf_events
+        # raw_gdf.info["gdf_events"] = gdf_events
+        raw_gdf.info["temp"] = dict()
+        raw_gdf.info["temp"]["gdf_events"] = gdf_events
         return raw_gdf
 
     def extract_events(self, raw_gdf):
         # all events
-        events, name_to_code = raw_gdf.info["gdf_events"]
+        events, name_to_code = raw_gdf.info["temp"]["gdf_events"]
 
         if "769" and "770" and "771" and "772" in name_to_code :
             train_set = True
@@ -118,7 +121,7 @@ def extract_segment_trial(raw_gdb, baseline=(-0.5, 0), duration=4):
     :param duration: unit: seconds. mi duration time
     :return: array data: trial data, labels
     '''
-    events = raw_gdb.info['events']
+    events = raw_gdb.info["temp"]['events']
     raw_data = raw_gdb.get_data()
     freqs = raw_gdb.info['sfreq']
     mi_duration = int(freqs * duration)
@@ -140,11 +143,12 @@ def extract_segment_trial(raw_gdb, baseline=(-0.5, 0), duration=4):
 
 if __name__ == '__main__':
     subject_id = 4
-    data_path = "/home/dog/Documents/EEGDataSet/BCICIV_2a_gdf/"
+    data_path = "E:/project/python/LMDA-Code-main/Data/BCICIV_2a_gdf/"
 
     train_filename = "A{:02d}T.gdf".format(subject_id)
     test_filename = "A{:02d}E.gdf".format(subject_id)
     train_filepath = os.path.join(data_path, train_filename)  # 使用path.join比直接用+显得更规范一些
+
     test_filepath = os.path.join(data_path, test_filename)
     train_label_filepath = train_filepath.replace(".gdf", ".mat")  # 直接用replace函数就可以进行替换
     test_label_filepath = test_filepath.replace(".gdf", ".mat")
@@ -158,12 +162,12 @@ if __name__ == '__main__':
     train_cnt = train_loader.load()
     test_cnt = test_loader.load()
 
-    train_cnt = train_cnt.drop_channels(
-        ["EOG-left", "EOG-central", "EOG-right"]
-    )
-    test_cnt = test_cnt.drop_channels(
-        ["EOG-left", "EOG-central", "EOG-right"]
-    )
+    # train_cnt = train_cnt.drop_channels(
+    #     ["EOG-left", "EOG-central", "EOG-right"]
+    # )
+    # test_cnt = test_cnt.drop_channels(
+    #     ["EOG-left", "EOG-central", "EOG-right"]
+    # )
     print(train_cnt.get_data().shape)
     print(test_cnt.get_data().shape)
 

@@ -15,12 +15,15 @@ import datetime
 # tools for plotting confusion matrices and t-SNE
 from torchsummary import summary
 
+# torch.cuda.device_count()  # 显示gpu数量
+# print(torch.cuda.device_count())
+
 
 # ========================= BCIIV2A data =====================================
 
 def bci4_2a():  # 通用模型模块, 不需要更改, 放在main中方便调试;
     dataset = 'BCI4_2A'
-    data_path = "/home/dog/Documents/EEGDataSet/BCICIV_2a_gdf/"
+    data_path = "E:/project/python/LMDA-Code-main/Data/BCICIV_2a_gdf/"
 
     train_filename = "{}T.gdf".format(subject_id)
     test_filename = "{}E.gdf".format(subject_id)
@@ -98,9 +101,10 @@ def bci4_2a():  # 通用模型模块, 不需要更改, 放在main中方便调试
         Net = ShallowConvNet(num_classes=mi_class, chans=channels, samples=samples).to(device)
 
     Net.apply(weights_init)
-    Net.apply(weights_init)
+    # Net.apply(weights_init)
 
-    logging.info(summary(Net, show_input=False))
+    # logging.info(summary(Net, show_input=False))
+    logging.info(summary(Net, input_size=(288, 22, 1125)))
 
     model_optimizer = torch.optim.AdamW(Net.parameters(), lr=lr_model)
     model_constraint = MaxNormDefaultConstraint()
@@ -120,7 +124,7 @@ if __name__ == "__main__":
 
     # subject of the datase
     subject_id = 'A06'
-    device = torch.device('cuda:2')
+    device = torch.device('cuda:0')
 
     print('subject_id: ', subject_id)
 
@@ -154,7 +158,7 @@ if __name__ == "__main__":
 
     # ===============================  超 参 数 设 置 ================================
     lr_model = 1e-3
-    step_one_epochs = 300
+    step_one_epochs = 10
     batch_size = 32
     kwargs = {'num_workers': 1, 'pin_memory': True}  # 因为pycharm开启了多进行运行main, num_works设置多个会报错
     # ================================================================================

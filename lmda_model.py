@@ -42,7 +42,9 @@ class LMDA(nn.Module):
         super(LMDA, self).__init__()
         self.ave_depth = ave_depth
         self.channel_weight = nn.Parameter(torch.randn(depth, 1, chans), requires_grad=True)
+        # print(self.channel_weight.data)
         nn.init.xavier_uniform_(self.channel_weight.data)
+        # print(self.channel_weight.data)
         # nn.init.kaiming_normal_(self.channel_weight.data, nonlinearity='relu')
         # nn.init.normal_(self.channel_weight.data)
         # nn.init.constant_(self.channel_weight.data, val=1/chans)
